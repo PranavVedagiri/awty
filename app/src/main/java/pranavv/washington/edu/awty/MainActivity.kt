@@ -6,13 +6,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
+import android.support.v4.app.ActivityCompat
+import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import java.util.jar.Manifest
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,7 +28,9 @@ class MainActivity : AppCompatActivity() {
         val phoneNumber = findViewById<EditText>(R.id.phoneNumber)
         val minutes = findViewById<EditText>(R.id.minutes)
         val start = findViewById<Button>(R.id.start)
-
+        if(checkCallingOrSelfPermission(android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.SEND_SMS), 1)
+        }
         start.setOnClickListener {
             if(checkPhone(phoneNumber) && checkMinutes(minutes)){
                 var numMessage = changeNumber(phoneNumber.text.toString())
@@ -68,5 +75,6 @@ class AlarmReceiver: BroadcastReceiver(){
         val message = intent!!.getStringExtra("message")
         val number = intent!!.getStringExtra("phone")
         Toast.makeText(context, number + ": " + message, Toast.LENGTH_SHORT).show()
+        SmsManager.getDefault().sendTextMessage(number, null, message, null, null)
     }
 }
