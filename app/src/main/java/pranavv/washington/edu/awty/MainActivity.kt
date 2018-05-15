@@ -18,11 +18,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import java.util.jar.Manifest
+import android.os.StrictMode
+
+
 
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         var message = findViewById<EditText>(R.id.message)
