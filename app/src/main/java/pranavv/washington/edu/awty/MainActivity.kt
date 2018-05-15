@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -28,11 +29,16 @@ class MainActivity : AppCompatActivity() {
         val phoneNumber = findViewById<EditText>(R.id.phoneNumber)
         val minutes = findViewById<EditText>(R.id.minutes)
         val start = findViewById<Button>(R.id.start)
-        if(checkCallingOrSelfPermission(android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
+
+        val audio = findViewById<Button>(R.id.audio)
+        val video = findViewById<Button>(R.id.video)
+
+        if (checkCallingOrSelfPermission(android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.SEND_SMS), 1)
         }
+
         start.setOnClickListener {
-            if(checkPhone(phoneNumber) && checkMinutes(minutes)){
+            if (checkPhone(phoneNumber) && checkMinutes(minutes)) {
                 var numMessage = changeNumber(phoneNumber.text.toString())
                 var numMinutes = minutes.text.toString().toInt()
 
@@ -44,17 +50,58 @@ class MainActivity : AppCompatActivity() {
                 registerReceiver(AlarmReceiver(), intentFilter)
                 val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-                if(start.text.toString() == "Start" ){
+                if (start.text.toString() == "Start") {
                     alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + numMinutes.toLong() * (60 * 1000), numMinutes.toLong() * (60 * 1000), pendingIntent)
                     start.setText("Stop")
-                }else{
+                } else {
                     start.setText("Start")
                     alarmManager.cancel(pendingIntent)
                     pendingIntent.cancel()
                 }
             }
         }
+
+        audio.setOnClickListener{
+            if(checkPhone(phoneNumber) && checkMinutes(minutes)){
+
+               var attachment = "file:///Users/pranavvedagiri/Downloads/Kanye-West-Lift-Yourself.mp3"
+
+
+                var num = changeNumber(phoneNumber.text.toString())
+
+                val sendIntent = Intent(Intent.ACTION_SEND)
+                sendIntent.putExtra("address", num)
+                sendIntent.putExtra("sms_body", "Enjoy")
+
+                sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(attachment))
+                sendIntent.type = "audio/mp3"
+
+                sendIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+                startActivity(sendIntent)
+            }
+        }
+
+        video.setOnClickListener {
+            if(checkPhone(phoneNumber) && checkMinutes(minutes)){
+                var attachment = "file:///Users/pranavvedagiri/Downloads/Charlie%20bit%20my%20finger%20(%20original%20full%20version%20)%20(youtubemp4.to).mp4"
+
+                var num = changeNumber(phoneNumber.text.toString())
+
+                val sendIntent = Intent(Intent.ACTION_SEND)
+                sendIntent.putExtra("address", num)
+                sendIntent.putExtra("sms_body", "Enjoy")
+
+                sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(attachment))
+                sendIntent.type = "video/mp4"
+
+                sendIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+                startActivity(sendIntent)
+            }
+        }
     }
+
 
     fun checkMinutes(minutes: EditText): Boolean{
         return !(minutes.text.toString().toInt() == 0 || minutes.text.toString().toInt() < 0 || minutes.text.toString() == "")
